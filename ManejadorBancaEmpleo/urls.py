@@ -5,5 +5,6 @@ from . import views
 
 urlpatterns = [
     path('', views.jobListing_list),
-    path('create', csrf_exempt(views.job_listing_create), name ='jobListingCreate')
+    path('create', csrf_exempt(views.job_listing_create), name ='jobListingCreate'),
+    path('<str:major>', views.jobListing_get_by_major, name='jobListingGetByMajor'),
 ]

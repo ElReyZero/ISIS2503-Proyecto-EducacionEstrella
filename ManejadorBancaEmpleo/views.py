@@ -12,6 +12,12 @@ def jobListing_list(request):
         jl_serializer = JobListingSerializer(jobListings, many=True)
         return JsonResponse(jl_serializer.data, safe=False)
 
+def jobListing_get_by_major(request, major):
+    if request.method == 'GET':
+        jobListings = jbl.get_job_listing_by_major(major)
+        jl_serializer = JobListingSerializer(jobListings, many=True)
+        return JsonResponse(jl_serializer.data, safe=False)
+
 def job_listing_create(request):
     if request.method == 'POST':
         jl_dto = JSONParser().parse(request)
