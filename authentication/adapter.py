@@ -6,7 +6,7 @@ class AccountAdapter(DefaultAccountAdapter):
     def get_login_redirect_url(self, request):
         threshold = 90 #seconds
 
-        assert request.user.is_authenticated()
+        assert request.user.is_authenticated
         if (request.user.last_login - request.user.date_joined).seconds < threshold:
             url = '/registration/success'
         else:

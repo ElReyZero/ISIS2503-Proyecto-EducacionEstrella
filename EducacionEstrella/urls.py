@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('banca-empleo/', include('ManejadorBancaEmpleo.urls')),
     path('accounts/', include('allauth.urls')),
+    path('modulo-financiero', include('ModuloFinanciero.urls')),
 ]
