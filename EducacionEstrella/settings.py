@@ -37,8 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ManejadorBancaEmpleo'
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'ManejadorBancaEmpleo',
+    'ModuloFinanciero'
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -76,12 +82,8 @@ WSGI_APPLICATION = 'EducacionEstrella.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bancaempleo_db',
-        'USER': 'bancaempleo_user',
-        'PASSWORD': 'isis2503',
-        'HOST': '172.24.41.154',
-        'PORT':'5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase.db',
     }
 }
 
@@ -126,3 +128,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ACCOUNT_ADAPTER = 'authentication.adapter.AccountAdapter'
