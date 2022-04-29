@@ -21,4 +21,6 @@ urlpatterns = [
     path('banca-empleo/', include('ManejadorBancaEmpleo.urls')),
     path('accounts/', include('allauth.urls')),
     path('modulo-financiero', include('ModuloFinanciero.urls')),
+    path(r'', include('django.contrib.auth.urls')),
+    path(r'', include('social_django.urls')),
 ]

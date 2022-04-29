@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'ManejadorBancaEmpleo',
-    'ModuloFinanciero'
+    'ModuloFinanciero',
+    'social_django'
 ]
 
 SITE_ID = 1
@@ -131,3 +132,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ACCOUNT_ADAPTER = 'authentication.adapter.AccountAdapter'
+
+
+LOGIN_URL = "/login/auth0" 
+LOGIN_REDIRECT_URL = "/" 
+#TODO Cambiar la ip
+LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.auth0.com/v2/logout?returnTo=http%3A%2F%2Fip_publica_instancia:8000" 
+SOCIAL_AUTH_TRAILING_SLASH = False # Remove end slash from routes 
+SOCIAL_AUTH_AUTH0_DOMAIN = 'isis2503-elreyzero.us.auth0.com' 
+SOCIAL_AUTH_AUTH0_KEY = 'iGKClII0copmrNWRZNMvXJeO2NQUvP8w' 
+SOCIAL_AUTH_AUTH0_SECRET = 'x8Qr2yPYGSF0__TXB43ktawW4exnjUZiiozfIL6THK3N5PrvoMhaKhPCA2PuRNmG' 
+SOCIAL_AUTH_AUTH0_SCOPE = [ 'openid', 'profile','email','role', ] 
+AUTHENTICATION_BACKENDS = { 'monitoring.auth0backend.Auth0', 'django.contrib.auth.backends.ModelBackend', }
