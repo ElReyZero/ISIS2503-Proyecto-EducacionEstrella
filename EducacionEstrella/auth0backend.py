@@ -1,5 +1,6 @@
 import requests 
 from social_core.backends.oauth import BaseOAuth2, url_add_parameters
+from django.conf import settings as cfg
 
 class Auth0(BaseOAuth2): 
     """Auth0 OAuth authentication backend""" 
@@ -10,7 +11,7 @@ class Auth0(BaseOAuth2):
 
     def get_redirect_uri(self, state=None):
         """Build redirect with redirect_state parameter."""
-        uri = "https://3.91.194.82/complete/auth0"
+        uri = cfg.LOAD_BALANCER_IP+"/complete/auth0"
         if self.REDIRECT_STATE and state:
             uri = url_add_parameters(uri, {'redirect_state': state})
         return uri
