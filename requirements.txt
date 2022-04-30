@@ -4,3 +4,4 @@ cryptography
 PyJWT
 social-auth-app-django
 requests
+djangorestframework

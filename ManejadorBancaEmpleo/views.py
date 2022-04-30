@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 from .serializers import JobListingSerializer
 from django.http.response import JsonResponse
