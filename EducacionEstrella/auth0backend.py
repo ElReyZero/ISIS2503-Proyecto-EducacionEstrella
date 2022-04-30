@@ -10,7 +10,7 @@ class Auth0(BaseOAuth2):
 
     def get_redirect_uri(self, state=None):
         """Build redirect with redirect_state parameter."""
-        uri = "https://3.91.194.82"
+        uri = "https://3.91.194.82/complete/auth0"
         if self.REDIRECT_STATE and state:
             uri = url_add_parameters(uri, {'redirect_state': state})
         return uri
