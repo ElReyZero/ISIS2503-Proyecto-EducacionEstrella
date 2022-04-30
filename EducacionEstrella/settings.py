@@ -143,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ip = "3.91.194.82"
 
-USE_X_FORWARDED_HOST = True
+#USE_X_FORWARDED_HOST = True
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+ip 
