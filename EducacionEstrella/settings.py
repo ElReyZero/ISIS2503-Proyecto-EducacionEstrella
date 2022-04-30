@@ -78,11 +78,16 @@ WSGI_APPLICATION = 'EducacionEstrella.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase.db',
+    "default": {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'educacionEstrellaDB',
+        'USER': 'eeUser',
+        'PASSWORD': 'isis2503',
+        'HOST': 'educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
