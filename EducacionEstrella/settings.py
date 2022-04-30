@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,7 +58,7 @@ ROOT_URLCONF = 'EducacionEstrella.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'EducacionEstrella', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,19 +117,30 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = 'static/'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'static', 'media')
+#MEDIA_URL = '/static/media/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+ip = "3.91.194.82"
+
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/" 
-#TODO Cambiar la ip
-LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=http%3A%2F%2Flocalhost:8000" 
+LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+ip 
 SOCIAL_AUTH_TRAILING_SLASH = False # Remove end slash from routes 
 SOCIAL_AUTH_AUTH0_DOMAIN = 'isis2503-elreyzero.us.auth0.com' 
 SOCIAL_AUTH_AUTH0_KEY = 'iGKClII0copmrNWRZNMvXJeO2NQUvP8w' 
