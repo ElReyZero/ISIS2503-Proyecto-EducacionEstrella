@@ -143,6 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ip = "3.91.194.82"
 
+USE_X_FORWARDED_HOST = True
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'https://'+ip
