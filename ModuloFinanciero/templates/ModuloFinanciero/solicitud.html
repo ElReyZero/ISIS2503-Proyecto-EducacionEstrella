@@ -19,9 +19,17 @@
                         <tbody>
 
                         <tr>
-                            <td>{{ solicitud.name }}</td>
+                            <td>Estudiante: {{solicitud.estudiante }}</td>
                         </tr>
-
+                        <tr>
+                            <td>Analista: {{ solicitud.analista }}</td>
+                        </tr>
+                        <tr>
+                            <td>Monto: {{ solicitud.montoAPagar }} COP</td>
+                        </tr>
+                        <tr>
+                            <td>Fecha de la solicitud: {{ solicitud.fechaSolicitud }}</td>
+                        </tr>
                         </tbody>
                     </table>
 
