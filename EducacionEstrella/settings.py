@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-rj0bb0y3u-5zuov0ph6dcn+%$@j0txn_53rv_s&7)6@x=5zn1=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'https://3.91.194.82']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -146,7 +146,6 @@ ip = "3.91.194.82"
 USE_X_FORWARDED_HOST = True
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'https://'+ip
 LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+ip 
 SOCIAL_AUTH_TRAILING_SLASH = False # Remove end slash from routes 
 SOCIAL_AUTH_AUTH0_DOMAIN = 'isis2503-elreyzero.us.auth0.com' 
