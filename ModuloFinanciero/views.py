@@ -7,6 +7,8 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
+import hashlib
+from datetime import datetime
 
 @login_required
 def dashboard_view(request):
@@ -40,6 +42,13 @@ def solicitud_create(request):
         if request.method == 'POST':
             form = SolicitudForm(request.POST)
             if form.is_valid():
+                try:
+                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaSolicitud").strftime("%Y-%m-%d") + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
+                except (TypeError, AttributeError):
+                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
+                hash_object = hashlib.sha256(concat.encode())
+                if not hash_object == form.cleaned_data.get("hash"):
+                    return HttpResponseForbidden()
                 create_solicitud(form)
                 messages.add_message(request, messages.SUCCESS, 'Successfully created Solicitud')
                 return HttpResponseRedirect(reverse('solicitudCreate'))
