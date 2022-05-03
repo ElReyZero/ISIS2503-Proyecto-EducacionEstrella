@@ -1,17 +1,25 @@
-from django.http import HttpResponseBadRequest
+from time import sleep
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.shortcuts import render
 from .serializers import JobListingSerializer
 from django.http.response import JsonResponse
 from .logic import job_listings_logic as jbl
 from rest_framework import status
 from rest_framework.parsers import JSONParser 
-
+import random
+import time
 def jobListing_list(request):
     if request.method == 'GET':
-        jobListings = jbl.get_job_listings()
-        jl_serializer = JobListingSerializer(jobListings, many=True)
-        return JsonResponse(jl_serializer.data, safe=False)
-
+        eleccion = random.choice(["TIMEOUT","FALLO","NORMAL"])
+        if eleccion == "NORMAL":
+            jobListings = jbl.get_job_listings()
+            jl_serializer = JobListingSerializer(jobListings, many=True)
+            return JsonResponse(jl_serializer.data, safe=False)
+        elif eleccion == "FALLO":
+           return HttpResponseServerError()
+        else:
+            time.sleep(random.randint(5,10))
+            return HttpResponse(status = 408)
 def jobListing_get_by_major(request, major):
     if request.method == 'GET':
         jobListings = jbl.get_job_listing_by_major(major)
