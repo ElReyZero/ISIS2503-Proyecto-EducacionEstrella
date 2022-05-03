@@ -5,8 +5,8 @@
 <form method="POST">
     {% csrf_token %}
     <br>
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success waves-effect waves-light" onClick="setHash()">Create</button>
+    {{ form.as_p }} 
+    <button type="submit" class="btn btn-success waves-effect waves-light" id="submitButton">Create</button>
     <button type="button" class="btn btn-primary waves-effect waves-light"
                                 onClick=" window.location.href='../' ">Back
 </button>
