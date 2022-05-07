@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
 import hashlib
-from datetime import datetime
 
 @login_required
 def dashboard_view(request):
@@ -46,7 +45,7 @@ def solicitud_create(request):
                     concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaSolicitud").strftime("%Y-%m-%d") + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
                 except (TypeError, AttributeError):
                     concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
-                hash_object = hashlib.sha256(concat.encode())
+                hash_object = hashlib.sha256(concat.encode()).hexdigest()
                 if not hash_object == form.cleaned_data.get("hash"):
                     return HttpResponseForbidden()
                 create_solicitud(form)

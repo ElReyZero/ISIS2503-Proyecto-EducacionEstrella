@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<script type="module" src="{% static 'hash.js' %}"></script>
-<form method="POST">
+<script src="{% static 'hash.js' %}" type="module"></script>
+<form id="post-form" method="POST">
     {% csrf_token %}
     <br>
     {{ form.as_p }} 
-    <button type="submit" class="btn btn-success waves-effect waves-light" id="submitButton">Create</button>
+    <button id="submitButton" type="submit" class="btn btn-success waves-effect waves-light">Create</button>
     <button type="button" class="btn btn-primary waves-effect waves-light"
                                 onClick=" window.location.href='../' ">Back
 </button>
