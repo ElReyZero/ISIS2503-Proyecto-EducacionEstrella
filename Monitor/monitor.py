@@ -7,7 +7,9 @@ from datetime import datetime
 import os
 from smtplib import SMTP
 import urllib3
-log = logging.getLogger("monitor_log")
+log1 = logging.getLogger("monitor_log1")
+log2 = logging.getLogger("monitor_log2")
+log3 = logging.getLogger("monitor_log3")
 
 def setupEmail():
     global email 
@@ -31,12 +33,12 @@ def sendEmail(total_requests, failed_requests, ip):
                 IP of the machine that failed: {ip}"""
     server.sendmail(email, recipient, message)
 
-def setupLogger():
+def setupLogger(name, log):
     try:
         os.makedirs("./MonitorData/logging")
     except FileExistsError:
         pass
-    logFilename = f"./MonitorData/logging/monitor.log"
+    logFilename = f"./MonitorData/logging/monitor"+name+".log"
     formatter = logging.Formatter("%(asctime)s | %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S")
     level = logging.DEBUG
 
@@ -54,7 +56,7 @@ def setupLogger():
     log.addHandler(file_handler)
 
 
-def main(ip):
+def main(ip, log):
 
     total_requests = 0
     failed_requests = 0
@@ -75,8 +77,8 @@ def main(ip):
         log.info(f"Monitoring IP: {ip} | Finished sending requests")
         log.info(f"Monitoring IP: {ip} | Number of requests sent: {total_requests}")
         log.info(f"Monitoring IP: {ip} | Number of requests failed: {failed_requests}")
-        if failed_requests > total_requests/2:
-            log.error("More than half of the requests failed")
+        if failed_requests > total_requests/5: #20%
+            log.error("More than 20 percenet of the requests failed")
             sendEmail(total_requests, failed_requests, ip)
             log.info("Email sent")
     except Timeout:
@@ -90,7 +92,9 @@ if __name__ == "__main__":
     ip3 = "https://44.195.183.116/websites/?url=www.google.com/"
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     setupEmail()
-    setupLogger()
-    main(ip1)
-    main(ip2)
-    main(ip3)
+    setupLogger("1", log1)
+    setupLogger("2", log2)
+    setupLogger("3", log3)
+    main(ip1, log1)
+    main(ip2, log2)
+    main(ip3, log3)
