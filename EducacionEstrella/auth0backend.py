@@ -11,7 +11,10 @@ class Auth0(BaseOAuth2):
 
     def get_redirect_uri(self, state=None):
         """Build redirect with redirect_state parameter."""
-        uri = "http://"+cfg.LOAD_BALANCER_IP+"/complete/auth0"
+        if "localhost" in cfg.LOAD_BALANCER_IP:
+            uri = "http://"+cfg.LOAD_BALANCER_IP+"/complete/auth0"
+        else:
+            uri = "https://"+cfg.LOAD_BALANCER_IP+"/complete/auth0"
         if self.REDIRECT_STATE and state:
             uri = url_add_parameters(uri, {'redirect_state': state})
         return uri
