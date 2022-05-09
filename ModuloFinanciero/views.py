@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
 import hashlib
+from django.views.decorators.csrf import csrf_exempt
+
 
 @login_required
 def dashboard_view(request):
@@ -36,6 +38,39 @@ def solicitud_view(request, id=0):
 
 @login_required
 def solicitud_create(request):
+    role = getRole(request)
+    if role == "AnalistaCredito":
+        if request.method == 'POST':
+            form = SolicitudForm(request.POST)
+            if form.is_valid():
+                try:
+                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaSolicitud").strftime("%Y-%m-%d") + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
+                except (TypeError, AttributeError):
+                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
+                hash_object = hashlib.sha256(concat.encode()).hexdigest()
+                if not hash_object == form.cleaned_data.get("hash"):
+                    print("Different Hashes detected in create request!")
+                    print("Received Hash: " + form.cleaned_data.get("hash"))
+                    print("Calculated Hash: " + hash_object)
+                    return HttpResponseForbidden()
+                create_solicitud(form)
+                messages.add_message(request, messages.SUCCESS, 'Successfully created Solicitud')
+                return HttpResponseRedirect(reverse('solicitudCreate'))
+            else:
+                print(form.errors)
+        else:
+            form = SolicitudForm()
+
+        context = {
+            'form': form,
+        }
+        return render(request, 'ModuloFinanciero/solicitudCreate.html', context)
+    else:
+        return HttpResponseForbidden()
+
+@csrf_exempt
+@login_required
+def solicitud_create_csrf_exempt(request):
     role = getRole(request)
     if role == "AnalistaCredito":
         if request.method == 'POST':
