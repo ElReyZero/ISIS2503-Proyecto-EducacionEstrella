@@ -3,11 +3,10 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from EducacionEstrella.auth0backend import getRole
 from .logic.solicitud_logic import get_solicitudes, get_solicitud, create_solicitud
-from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
-import hashlib
+import requests
 
 @login_required
 def dashboard_view(request):
@@ -33,23 +32,18 @@ def solicitud_view(request, id=0):
     else:
         return HttpResponseForbidden()
 
-
 @login_required
 def solicitud_create(request):
-    role = getRole(request)
-    if role == "AnalistaCredito":
         if request.method == 'POST':
             form = SolicitudForm(request.POST)
+            print(request)
             if form.is_valid():
-                try:
-                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaSolicitud").strftime("%Y-%m-%d") + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
-                except (TypeError, AttributeError):
-                    concat = form.cleaned_data.get("estudiante") + form.cleaned_data.get("analista") + str(form.cleaned_data.get("montoAPagar")) + form.cleaned_data.get("fechaAprobacion").strftime("%Y-%m-%d")
-                hash_object = hashlib.sha256(concat.encode()).hexdigest()
-                if not hash_object == form.cleaned_data.get("hash"):
-                    return HttpResponseForbidden()
-                create_solicitud(form)
-                messages.add_message(request, messages.SUCCESS, 'Successfully created Solicitud')
+                form.cleaned_data["estudiante"] = "Jairo Molano"
+                form.cleaned_data["montoAPagar"] = "100000"
+                form.cleaned_data["fechaAprobacion"] = "2022-01-01"
+                print(form.cleaned_data)
+                #r = requests.post("http://localhost:8000/modulo-financiero/solicitud/create", data=form.cleaned_data, cookies=request.COOKIES)
+
                 return HttpResponseRedirect(reverse('solicitudCreate'))
             else:
                 print(form.errors)
@@ -60,5 +54,3 @@ def solicitud_create(request):
             'form': form,
         }
         return render(request, 'ModuloFinanciero/solicitudCreate.html', context)
-    else:
-        return HttpResponseForbidden()

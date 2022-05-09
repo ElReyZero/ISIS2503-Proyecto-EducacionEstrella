@@ -78,22 +78,11 @@ WSGI_APPLICATION = 'EducacionEstrella.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'educacionEstrellaDB',
-        'USER': 'eeUser',
-        'PASSWORD': 'isis2503',
-        'HOST': 'educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com',
-        'PORT': '5432',
-    }
-}
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'educacionEstrellaDB.db',
-#     }
-# }
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': 'educacionEstrellaDB.db',
+     }
+ }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -146,7 +135,7 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOAD_BALANCER_IP = "54.160.243.39"
+LOAD_BALANCER_IP = "localhost:8000"
 
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"
