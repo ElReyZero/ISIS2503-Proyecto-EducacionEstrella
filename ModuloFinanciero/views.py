@@ -41,7 +41,7 @@ def solicitud_create(request):
             form.cleaned_data["estudiante"] = "Jairo Molano"
             form.cleaned_data["montoAPagar"] = "100000"
             form.cleaned_data["fechaAprobacion"] = "2022-01-01"
-            r = requests.post("https://54.161.20.94/modulo-financiero/solicitud/create", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
+            r = requests.post("https://54.161.20.94/modulo-financiero/solicitud/create_exempt", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
             print(r.text)
             print(r.status_code)
             return HttpResponseRedirect(reverse('solicitudCreate'))
