@@ -25,7 +25,7 @@ def setupEmail():
 
 
 def sendEmail(total_requests, failed_requests, ip):
-    recipient = "dcorreal@gmail.com"
+    recipient = "juan.romero1201@gmail.com"
     message = f"""From: monitor.modulofinanciero@gmail.com
                 Subject: WARNING - Monitor Modulo Financiero\n
                 The monitor found that {failed_requests} requests failed out of {total_requests}\n
@@ -78,7 +78,7 @@ def main(ip, log):
         log.info(f"Monitoring IP: {ip} | Number of requests sent: {total_requests}")
         log.info(f"Monitoring IP: {ip} | Number of requests failed: {failed_requests}")
         if failed_requests > total_requests/5: #20%
-            log.error("More than 20 percenet of the requests failed")
+            log.error("More than 20 percent of the requests failed")
             sendEmail(total_requests, failed_requests, ip)
             log.info("Email sent")
     except Timeout:
