@@ -41,16 +41,17 @@ def solicitud_create(request):
             form.cleaned_data["estudiante"] = "Jairo Molano"
             form.cleaned_data["montoAPagar"] = "100000"
             form.cleaned_data["fechaAprobacion"] = "2022-01-01"
+            print(form.cleaned_data)
             # Ejemplo con toda protección
-            r_protected = requests.post("https://54.161.20.94/modulo-financiero/solicitud/create", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
+            r_protected = requests.post("https://34.207.187.150/modulo-financiero/solicitud/create", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
             print(r_protected.text)
             print(r_protected.status_code)
             # Ejemplo CSRF_EXEMPT
-            r_no_csrf = requests.post("https://54.161.20.94/modulo-financiero/solicitud/create_exempt", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
+            r_no_csrf = requests.post("https://34.207.187.150/modulo-financiero/solicitud/create_exempt", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
             print(r_no_csrf.text)
             print(r_no_csrf.status_code)
             # Ejemplo sin protección
-            r_no_protected = requests.post("https://54.161.20.94/modulo-financiero/solicitud/create_insecure", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
+            r_no_protected = requests.post("https://34.207.187.150/modulo-financiero/solicitud/create_insecure", data=form.cleaned_data, cookies=request.COOKIES, verify=False)
             print(r_no_protected.text)
             print(r_no_protected.status_code)
             return HttpResponseRedirect(reverse('solicitudCreate'))
