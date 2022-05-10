@@ -1,13 +1,15 @@
 from time import sleep
 from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.shortcuts import render
-from .serializers import JobListingSerializer, EmpresaSerializer, SolicitudesEmpleoSerializer
+from .serializers import JobListingSerializer, EmpresaSerializer, SolicitudEmpleoSerializer
 from django.http.response import JsonResponse
 from .logic import job_listings_logic as jbl
 from rest_framework import status
 from rest_framework.parsers import JSONParser 
 import random
 import time
+
+
 def jobListing_list(request):
     if request.method == 'GET':
         eleccion = random.choice(["TIMEOUT","FALLO","NORMAL"])
@@ -54,7 +56,7 @@ def empresa_create(request):
 def solicitudEmpleo_create(request):
     if request.method == 'POST':
         se_dto = JSONParser().parse(request)
-        se_serializer = SolicitudesEmpleoSerializer(data=se_dto)
+        se_serializer = SolicitudEmpleoSerializer(data=se_dto)
         if se_serializer.is_valid():
             se_serializer.save()
             return JsonResponse(se_serializer.data, status=status.HTTP_201_CREATED)

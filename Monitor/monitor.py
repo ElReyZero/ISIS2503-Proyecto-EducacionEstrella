@@ -7,6 +7,11 @@ from datetime import datetime
 import os
 from smtplib import SMTP
 import urllib3
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+
 log1 = logging.getLogger("monitor_log1")
 log2 = logging.getLogger("monitor_log2")
 log3 = logging.getLogger("monitor_log3")
@@ -26,19 +31,31 @@ def setupEmail():
 
 def sendEmail(total_requests, failed_requests, ip):
     recipient = "juan.romero1201@gmail.com"
-    message = f"""From: monitor.modulofinanciero@gmail.com
-                Subject: WARNING - Monitor Modulo Financiero\n
-                The monitor found that {failed_requests} requests failed out of {total_requests}\n
-                Time of occurrence: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n
-                IP of the machine that failed: {ip}"""
-    server.sendmail(email, recipient, message)
+    body = f"""The monitor found that {failed_requests} requests failed out of {total_requests}\nTime of occurrence: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\nIP of the machine that failed: {ip}"""
+
+    message = MIMEMultipart()
+    message["From"] = email
+    message["To"] = recipient
+    message["Subject"] = "WARNING - Monitor Modulo Financiero"
+    message.attach(MIMEText(body, "plain"))
+    ip = ip[8:22]
+    with open(f"./MonitorData/logging/monitor_"+ip+".log", "rb") as f:
+        payload = MIMEBase("application", "octete-stream")
+        payload.set_payload(f.read())
+        encoders.encode_base64(payload)
+        payload.add_header("Content-Disposition", "attachment", filename="monitor_"+ip+".log")
+        message.attach(payload)
+
+    text = message.as_string()
+    server.sendmail(email, recipient, text)
+
 
 def setupLogger(name, log):
     try:
         os.makedirs("./MonitorData/logging")
     except FileExistsError:
         pass
-    logFilename = f"./MonitorData/logging/monitor"+name+".log"
+    logFilename = f"./MonitorData/logging/monitor_"+name+".log"
     formatter = logging.Formatter("%(asctime)s | %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S")
     level = logging.DEBUG
 
@@ -64,7 +81,7 @@ def main(ip, log):
         for _ in range(100):
             log.info(f"Monitoring IP: {ip} | Sending request")
             t1 = time.time()
-            response = requests.get(ip, timeout=5, verify=False)
+            response = requests.get(ip, timeout=1, verify=False)
             log.info(f"Monitoring IP: {ip} | Request sent")
             total_requests += 1
             if not response:
@@ -87,14 +104,14 @@ def main(ip, log):
 
 
 if __name__ == "__main__":
-    ip1 = "https://44.195.183.116/"
+    ip1 = "http://52.91.92.224:8000/banca-empleo/"
     ip2 = "https://44.195.183.116/websites"
     ip3 = "https://44.195.183.116/websites/?url=www.google.com/"
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    setupEmail()
-    setupLogger("1", log1)
-    setupLogger("2", log2)
-    setupLogger("3", log3)
+    setupEmail()   
+    setupLogger(ip1[8:22], log1)
+    setupLogger(ip2[8:22], log2)
+    setupLogger(ip3[8:22], log3)
     main(ip1, log1)
     main(ip2, log2)
     main(ip3, log3)
