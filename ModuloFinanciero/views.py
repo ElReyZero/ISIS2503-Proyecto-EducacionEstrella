@@ -32,7 +32,6 @@ def solicitud_view(request, id=0):
     else:
         return HttpResponseForbidden()
 
-@login_required
 def solicitud_create(request):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     if request.method == 'POST':
