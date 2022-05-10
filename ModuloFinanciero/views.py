@@ -8,8 +8,7 @@ from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
 import requests
 import urllib3
-
-
+@login_required
 def dashboard_view(request):
     role = getRole(request)
     if role == "AnalistaCredito":
@@ -21,6 +20,7 @@ def dashboard_view(request):
     else:
         return HttpResponseForbidden()
 
+@login_required
 def solicitud_view(request, id=0):
     role = getRole(request)
     if role == "AnalistaCredito":
@@ -32,6 +32,7 @@ def solicitud_view(request, id=0):
     else:
         return HttpResponseForbidden()
 
+@login_required
 def solicitud_create(request):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     if request.method == 'POST':
