@@ -77,8 +77,8 @@ def main(ip, log):
 
     total_requests = 0
     failed_requests = 0
-    try:
-        for _ in range(100):
+    for _ in range(100):
+        try:
             log.info(f"Monitoring IP: {ip} | Sending request")
             t1 = time.time()
             response = requests.get(ip, timeout=1, verify=False)
@@ -90,17 +90,17 @@ def main(ip, log):
             t2 = time.time()
             log.info(f"Monitoring IP: {ip} | Request # {total_requests} completed in {t2-t1} seconds")
             time.sleep(0.5)
-
-        log.info(f"Monitoring IP: {ip} | Finished sending requests")
-        log.info(f"Monitoring IP: {ip} | Number of requests sent: {total_requests}")
-        log.info(f"Monitoring IP: {ip} | Number of requests failed: {failed_requests}")
-        if failed_requests > total_requests/5: #20%
-            log.error("More than 20 percent of the requests failed")
-            sendEmail(total_requests, failed_requests, ip)
-            log.info("Email sent")
-    except Timeout:
-        log.error("The request timed out")
-        failed_requests += 2
+        except Timeout:
+            log.error(f"Monitoring IP: {ip} | The request timed out")
+            failed_requests += 1
+    
+    log.info(f"Monitoring IP: {ip} | Finished sending requests")
+    log.info(f"Monitoring IP: {ip} | Number of requests sent: {total_requests}")
+    log.info(f"Monitoring IP: {ip} | Number of requests failed: {failed_requests}")
+    if failed_requests > total_requests/5: #20%
+        log.error("More than 20 percent of the requests failed")
+        sendEmail(total_requests, failed_requests, ip)
+        log.info("Email sent")
 
 
 if __name__ == "__main__":
