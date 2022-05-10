@@ -105,8 +105,8 @@ def main(ip, log):
 
 if __name__ == "__main__":
     ip1 = "http://52.91.92.224:8000/banca-empleo/"
-    ip2 = "https://44.195.183.116/websites"
-    ip3 = "https://44.195.183.116/websites/?url=www.google.com/"
+    ip2 = "http://54.226.89.229:8000/banca-empleo/"
+    ip3 = "http://54.87.23.251:8000/banca-empleo/"
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     setupEmail()   
     setupLogger(ip1[8:22], log1)
