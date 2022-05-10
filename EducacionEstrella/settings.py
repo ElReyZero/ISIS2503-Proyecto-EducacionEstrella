@@ -139,7 +139,7 @@ LOAD_BALANCER_IP = "54.87.35.250:8000"
 
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+LOAD_BALANCER_IP 
+LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=http%3A%2F%2F"+LOAD_BALANCER_IP 
 SOCIAL_AUTH_TRAILING_SLASH = False # Remove end slash from routes 
 SOCIAL_AUTH_AUTH0_DOMAIN = 'isis2503-elreyzero.us.auth0.com' 
 SOCIAL_AUTH_AUTH0_KEY = 'iGKClII0copmrNWRZNMvXJeO2NQUvP8w' 
