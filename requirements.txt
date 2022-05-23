@@ -7,3 +7,4 @@ requests
 djangorestframework
 flask
 flask_restful
+openpyxl
