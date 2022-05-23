@@ -1,6 +1,6 @@
 import sys
 import psycopg2 as pg
-
+import csv
 
 def connect():
     conn = None
@@ -15,11 +15,10 @@ def connect():
         )
 
         cur = conn.cursor()
-
-        cur.execute('SELECT version()')
-        db_version = cur.fetchone()
-
-        print(db_version)
+        print("Connected to database")
+        #cur.execute()
+        #db_version = cur.fetchall()
+        #print(db_version)
         cur.close()
     except (Exception, pg.DatabaseError) as error:
         print(error)
@@ -28,7 +27,36 @@ def connect():
     finally:
         if conn:
             conn.close()
-            print("holi")
+
+
+def insertEstudiantes(conn, cur):
+    with open(r'C:\Users\ElRey\Documents\Scripts\ISIS2503-Proyecto-EducacionEstrella\ReportGatherer\estudiantes.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        cont = 0
+        for row in reader:
+            if len(row[3]) > 50:
+                row[3] = row[3][:50]
+            cur.execute(
+            'INSERT INTO public."ModuloFinanciero_estudianteestrella" VALUES (%s, %s, %s, %s, %s, %s, %s)',
+            row)
+            cont += 1
+            print("\r" + str(cont), end="")
+        conn.commit()
+        cur.close()
+
+def insertSolicitudes(conn, cur):
+    with open(r'C:\Users\ElRey\Documents\Scripts\ISIS2503-Proyecto-EducacionEstrella\ReportGatherer\solicitudes.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        cont = 0
+        for row in reader:
+            if row[3] == "":
+                row[3] = None
+                row[6] = 'false'
+            cur.execute(
+            'INSERT INTO public."ModuloFinanciero_solicitudcredito" VALUES (%s, %s, %s, %s, %s, %s, %s)', row)
+            cont += 1
+            print(f"\r{cont}/1000", end="\n")
+        conn.commit()
 
 if __name__ == '__main__':
     connect()

@@ -5,3 +5,5 @@ PyJWT
 social-auth-app-django
 requests
 djangorestframework
+flask
+flask_restful
