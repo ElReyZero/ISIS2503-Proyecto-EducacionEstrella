@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_restful import Resource, Api
 from smtplib import SMTP
-import urllib3
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -13,7 +12,7 @@ api = Api(app)
 
 class Reporte(Resource):
     def get(self):
-        return "Correo Enviado!"
+        return sendEmail()
 
 
 api.add_resource(Reporte, '/getreport/')
@@ -21,10 +20,10 @@ api.add_resource(Reporte, '/getreport/')
 
 def setupEmail():
     global email 
-    email = "monitor.modulofinanciero@gmail.com"
+    email = "reportes.modulofinanciero@gmail.com"
 
     global password
-    password = "SqB*!kE7R24CjrVtMqDC"
+    password = "y43@RnL$ESX%X@"
 
     global server
     server = SMTP("smtp.gmail.com", 587)
@@ -50,9 +49,11 @@ def sendEmail():
 
         text = message.as_string()
         server.sendmail(email, recipient, text)
+        return "Email sent"
     except FileNotFoundError:
         return"File not found"
 
 
 if __name__ == "__main__":
+    setupEmail()
     app.run(debug=True)
