@@ -7,26 +7,49 @@ from openpyxl.workbook.protection import WorkbookProtection
 from openpyxl.styles import Font
 import os
 from datetime import datetime
+from multiprocessing import Process, Manager
+
 
 def connect():
-    conn = None
+    manager = Manager()
+    queries = manager.dict()
+    procesoCarrera = Process(target=queryCarrera, args=(queries,))
+    procesoUniversidad = Process(target=queryUniversidad, args=(queries,))
+    procesoCiudad = Process(target=queryCiudad, args=(queries,))
+    procesoGenero = Process(target=queryGenero, args=(queries,))
+    procesoEdad = Process(target=queryEdad, args=(queries,))
+
+    procesoCarrera.start()
+    procesoUniversidad.start()
+    procesoCiudad.start()
+    procesoGenero.start()
+    procesoEdad.start()
+
+    procesoCarrera.join()
+    procesoUniversidad.join()
+    procesoCiudad.join()
+    procesoGenero.join()
+    procesoEdad.join()
+
+    queryToExcel(queries)
+
+
+def queryCarrera(queries):
     try:
         conn = pg.connect(
             host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
             database = "educacionEstrellaDB",
             user = "eeUser",
             password = "isis2503"
-        )
-        cur = conn.cursor()
+            )
+        cursor = conn.cursor()
         print("Connected to database")
-        
-        cur.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data1 = cur.fetchall()
-        cur.execute("SELECT * FROM public.\"ModuloFinanciero_solicitudcredito\"")
-        data2 = cur.fetchall()
-        queries = {"estudiantes":data1, "solicitudes":data2}
-        queryToExcel(queries)
-        cur.close()
+
+        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
+        data = cursor.fetchall()
+        queries["Carreras"] = data
+        cursor.close()
+        conn.close()
     except (Exception, pg.DatabaseError):
         print(traceback.format_exc())
     except (KeyboardInterrupt):
@@ -37,6 +60,111 @@ def connect():
         if conn:
             conn.close()
 
+            
+
+def queryUniversidad(queries):
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
+        data = cursor.fetchall()
+        queries["Universidades"] = data
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
+def queryCiudad(queries):
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
+        data = cursor.fetchall()
+        queries["Ciudades"] = data
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
+def queryGenero(queries):
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
+        data = cursor.fetchall()
+        queries["Género"] = data
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
+def queryEdad(queries):
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
+        data = cursor.fetchall()
+        queries["Edad"] = data
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
 
 def queryToExcel(queries:dict):
     headings = ("col1", "col2", "col3", "col4", "col5", "col6", "col7")
