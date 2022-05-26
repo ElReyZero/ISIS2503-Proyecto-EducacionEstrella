@@ -1,8 +1,4 @@
 
-tasa de creditos = aceptados/solicitados
-total recaudo semestral 
-total cuotas en mora
-
 SELECT a.nombre, SUM(a.monto)
 FROM
     (SELECT ee.nombre as nombre, CASE WHEN s.pagado = 1 THEN s.montoAPagar ELSE 0 END as monto
@@ -16,11 +12,13 @@ SELECT COUNT(*), creditos_aprobados
 FROM public."ModuloFinanciero_solicitudcredito" s
 WHERE s.fechaAprobacion IS NOT NULL
 
+--Calcular total creditos con filtro
 SELECT COUNT(*) creditos_aprobados, ee.-criterio-
 FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
 WHERE s.estudiante_id = ee.id AND s.fechaAprobacion IS NOT NULL
 GROUP BY ee.-criterio-
 
+--Tasa de creditos = aceptados/solicitados
 SELECT b.-criterio-, 
     CASE WHEN a.creditos_aprobados IS NOT NULL THEN ROUND((a.creditos_aprobados/b.creditos_totales),2) 
     ELSE 0 END AS tasa_aprobacion
@@ -46,4 +44,10 @@ WHERE "fechaAprobacion" BETWEEN TO_DATE('2022-01-01', 'YYYY-MM-DD') AND
         TO_DATE('2022-06-30', 'YYYY-MM-DD') AND 
         pagado AND
         s.estudiante_id = ee.id
+GROUP BY ee.-criterio-;
+
+--Total cuotas en mora
+SELECT -criterio-, COUNT(*)
+FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+WHERE NOT pagado AND s.estudiante_id = ee.id
 GROUP BY ee.-criterio-;
