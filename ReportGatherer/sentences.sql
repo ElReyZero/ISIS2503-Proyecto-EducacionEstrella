@@ -37,3 +37,13 @@ FROM (
     GROUP BY ee.-criterio-
     ) b
 ON a.-criterio- = b.-criterio-;
+
+
+-- Total Recaudo Semestral
+SELECT -criterio-, SUM("montoAPagar")
+FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+WHERE "fechaAprobacion" BETWEEN TO_DATE('2022-01-01', 'YYYY-MM-DD') AND 
+        TO_DATE('2022-06-30', 'YYYY-MM-DD') AND 
+        pagado AND
+        s.estudiante_id = ee.id
+GROUP BY ee.-criterio-;
