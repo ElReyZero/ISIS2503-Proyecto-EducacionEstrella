@@ -145,11 +145,15 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOAD_BALANCER_IP = "localhost:8000"
+LOAD_BALANCER_IP = "52.72.43.217"
+
+if LOAD_BALANCER_IP == "localhost:8000":
+    LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=http%3A%2F%2F"+LOAD_BALANCER_IP 
+else:
+    LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+LOAD_BALANCER_IP
 
 LOGIN_URL = "/login/auth0" 
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=https%3A%2F%2F"+LOAD_BALANCER_IP 
+LOGIN_REDIRECT_URL = "/" 
 SOCIAL_AUTH_TRAILING_SLASH = False # Remove end slash from routes 
 SOCIAL_AUTH_AUTH0_DOMAIN = 'isis2503-elreyzero.us.auth0.com' 
 SOCIAL_AUTH_AUTH0_KEY = 'iGKClII0copmrNWRZNMvXJeO2NQUvP8w' 

@@ -10,6 +10,7 @@ from .forms import SolicitudForm
 import hashlib
 from django.views.decorators.csrf import csrf_exempt
 import requests
+import time
 
 @login_required
 def dashboard_view(request):
@@ -42,10 +43,12 @@ def report_view(request):
     role = getRole(request)
     if role == "GerenteFinanciero":
         #IP Microservicio
-        sendEmail = requests.get('http://localhost:5000/getReport/')
+        t1 = time.time()
+        sendEmail = requests.get('http://54.82.25.60:5000/getReport/')
         if sendEmail.status_code == 200:
             context = {
-                'response': sendEmail.text
+                'response': sendEmail.text,
+                'time': time.time() - t1
             }
         return render(request, 'ModuloFinanciero/reporte.html', context)
     else:

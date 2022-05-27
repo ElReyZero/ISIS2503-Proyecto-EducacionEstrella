@@ -6,7 +6,6 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import time
-import sys
 from multiprocessing import Process	
 from script import createReport
 import atexit
@@ -81,4 +80,4 @@ if __name__ == "__main__":
     global p
     p = Process(target=runReports)
     p.start()
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
