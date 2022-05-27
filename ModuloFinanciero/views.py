@@ -50,7 +50,7 @@ def report_view(request):
                 'response': sendEmail.text,
                 'time': time.time() - t1
             }
-        return render(request, 'ModuloFinanciero/reporte.html', context)
+            return render(request, 'ModuloFinanciero/reporte.html', context)
     else:
         return HttpResponseForbidden()
 
