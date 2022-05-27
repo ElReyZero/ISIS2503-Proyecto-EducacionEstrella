@@ -34,6 +34,130 @@ def connect():
     queryToExcel(queries)
 
 
+def queryTasaDeAprobacion(criterio):
+
+    """El criterio debe ser:
+        -carrera
+        -ciudad
+        -universidad
+        -genero
+        -edad
+    """
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        query = "SELECT b."+criterio+", "
+        query+= "CASE WHEN a.creditos_aprobados IS NOT NULL THEN ROUND((a.creditos_aprobados/b.creditos_totales),2) "
+        query += "ELSE 0 END AS tasa_aprobacion "
+        query += " FROM ( "
+        query += " SELECT CAST (COUNT(*) as numeric(9,2)) creditos_aprobados, ee."+criterio+" "
+        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s, public \"ModuloFinanciero_estudianteestrella\" ee "
+        query += " WHERE s.estudiante_id = ee.id AND s.\"fechaAprobacion\" IS NOT NULL "
+        query += " GROUP BY ee."+criterio+") "
+        query += " a RIGHT JOIN ( "
+        query += " SELECT CAST (COUNT(*) as numeric(9,2)) creditos_totales, ee."+criterio +" "
+        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s,public.\"ModuloFinanciero_estudianteestrella\" ee "
+        query += " WHERE s.estudiante_id = ee.id "
+        query += " GROUP BY ee."+criterio +" ) b ON a."+criterio+" = b."+criterio+";"
+
+        cursor.execute(query)
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
+def queryRecaudoSemestral(criterio):
+
+    """El criterio debe ser:
+        -carrera
+        -ciudad
+        -universidad
+        -genero
+        -edad
+    """
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        query = "SELECT "+criterio+", SUM(\"montoAPagar\") "
+        query += " FROM public.\"ModuloFinanciero_solicitucredito\" s, public.\"ModuloFinanciero_estudianteestrella\" ee "
+        query += " WHERE \"fechaAprobacion\" BETWEEN TO_DATE('2002-01-01', 'YYYY-MM-DD' AND "
+        query += " TO_DATE('2022-06-06', 'YYYY-MM-DD') AND pagado AND s.estudiante_id = ee.id "
+        query += " GROUP BY ee."+criterio+";"
+
+        cursor.execute(query)
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
+def queryCuotasEnMora(criterio):
+
+    """El criterio debe ser:
+        -carrera
+        -ciudad
+        -universidad
+        -genero
+        -edad
+    """
+    try:
+        conn = pg.connect(
+            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
+            database = "educacionEstrellaDB",
+            user = "eeUser",
+            password = "isis2503"
+            )
+        cursor = conn.cursor()
+        print("Connected to database")
+
+        query = "SELECT "+criterio +", COUNT(*) "
+        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s, public.\"ModuloFinanciero_estudianteestrella\" ee"
+        query += " WHERE NOT pagado AND s.estudiante_id = ee.id "
+        query += " GROUP BY ee."+criterio+";"
+        
+        cursor.execute(query)
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except (Exception, pg.DatabaseError):
+        print(traceback.format_exc())
+    except (KeyboardInterrupt):
+        if conn:
+            conn.close()
+        sys.exit()
+    finally:
+        if conn:
+            conn.close()
+
 def queryCarrera(queries):
     try:
         conn = pg.connect(
