@@ -145,7 +145,7 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOAD_BALANCER_IP = "52.72.43.217"
+LOAD_BALANCER_IP = "54.156.2.159"
 
 if LOAD_BALANCER_IP == "localhost:8000":
     LOGOUT_REDIRECT_URL = "https://isis2503-elreyzero.us.auth0.com/v2/logout?returnTo=http%3A%2F%2F"+LOAD_BALANCER_IP 
