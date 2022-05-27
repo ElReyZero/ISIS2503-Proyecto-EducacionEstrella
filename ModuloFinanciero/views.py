@@ -44,7 +44,7 @@ def report_view(request):
     if role == "GerenteFinanciero":
         #IP Microservicio
         t1 = time.time()
-        sendEmail = requests.get('http://54.82.25.60:5000/getReport/')
+        sendEmail = requests.get('http://3.216.114.80:5000/getReport/')
         if sendEmail.status_code == 200:
             context = {
                 'response': sendEmail.text,
