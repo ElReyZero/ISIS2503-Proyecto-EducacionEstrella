@@ -61,6 +61,8 @@ def runReports():
         return
 
 def clean_up():
+    global p
+    global server
     if p:
         p.join()
     if server:
