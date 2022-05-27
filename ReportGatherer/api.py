@@ -5,17 +5,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+import time
+import sys
+from multiprocessing import Process	
+from script import createReport
+import atexit
 
 app = Flask("MonitorGatherer")
 api = Api(app)
 
-
-class Reporte(Resource):
-    def get(self):
-        return sendEmail()
-
-
-api.add_resource(Reporte, '/getreport/')
 
 
 def setupEmail():
@@ -40,7 +38,7 @@ def sendEmail():
     message["Subject"] = "INFO - Educacion Estrella Financial Report"
     message.attach(MIMEText(body, "plain"))
     try:
-        with open(f"./reports/reporte.xlsx", "rb") as f:
+        with open("./reports/reporte.xlsx", "rb") as f:
             payload = MIMEBase("application", "octete-stream")
             payload.set_payload(f.read())
             encoders.encode_base64(payload)
@@ -51,9 +49,34 @@ def sendEmail():
         server.sendmail(email, recipient, text)
         return "Email sent"
     except FileNotFoundError:
-        return"File not found"
+        return "File not found"
 
+
+def runReports():
+    try:
+        while True:
+            createReport()
+            time.sleep(3600*24)
+    except KeyboardInterrupt:
+        return
+
+def clean_up():
+    if p:
+        p.join()
+    if server:
+        server.quit()
+
+class Reporte(Resource):
+    def get(self):
+        return sendEmail()
+
+
+api.add_resource(Reporte, '/getReport/')
 
 if __name__ == "__main__":
     setupEmail()
+    atexit.register(clean_up)
+    global p
+    p = Process(target=runReports)
+    p.start()
     app.run(debug=True)

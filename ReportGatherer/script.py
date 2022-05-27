@@ -10,14 +10,14 @@ from datetime import datetime
 from multiprocessing import Process, Manager
 
 
-def connect():
+def createReport():
     manager = Manager()
     queries = manager.dict()
-    procesoCarrera = Process(target=queryCarrera, args=(queries,))
-    procesoUniversidad = Process(target=queryUniversidad, args=(queries,))
-    procesoCiudad = Process(target=queryCiudad, args=(queries,))
-    procesoGenero = Process(target=queryGenero, args=(queries,))
-    procesoEdad = Process(target=queryEdad, args=(queries,))
+    procesoCarrera = Process(target=query, args=(queries, "carrera"))
+    procesoUniversidad = Process(target=query, args=(queries,"universidad"))
+    procesoCiudad = Process(target=query, args=(queries,"ciudad"))
+    procesoGenero = Process(target=query, args=(queries,"genero"))
+    procesoEdad = Process(target=query, args=(queries,"edad"))
 
     procesoCarrera.start()
     procesoUniversidad.start()
@@ -31,18 +31,14 @@ def connect():
     procesoGenero.join()
     procesoEdad.join()
 
+    if len(queries) != 5:
+        return False
+
     queryToExcel(queries)
+    print("Done")
+    return True
 
-
-def queryTasaDeAprobacion(criterio):
-
-    """El criterio debe ser:
-        -carrera
-        -ciudad
-        -universidad
-        -genero
-        -edad
-    """
+def query(queries, criterio):
     try:
         conn = pg.connect(
             host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
@@ -53,231 +49,53 @@ def queryTasaDeAprobacion(criterio):
         cursor = conn.cursor()
         print("Connected to database")
 
-        query = "SELECT b."+criterio+", "
-        query+= "CASE WHEN a.creditos_aprobados IS NOT NULL THEN ROUND((a.creditos_aprobados/b.creditos_totales),2) "
-        query += "ELSE 0 END AS tasa_aprobacion "
-        query += " FROM ( "
-        query += " SELECT CAST (COUNT(*) as numeric(9,2)) creditos_aprobados, ee."+criterio+" "
-        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s, public \"ModuloFinanciero_estudianteestrella\" ee "
-        query += " WHERE s.estudiante_id = ee.id AND s.\"fechaAprobacion\" IS NOT NULL "
-        query += " GROUP BY ee."+criterio+") "
-        query += " a RIGHT JOIN ( "
-        query += " SELECT CAST (COUNT(*) as numeric(9,2)) creditos_totales, ee."+criterio +" "
-        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s,public.\"ModuloFinanciero_estudianteestrella\" ee "
-        query += " WHERE s.estudiante_id = ee.id "
-        query += " GROUP BY ee."+criterio +" ) b ON a."+criterio+" = b."+criterio+";"
+        query = f"""SELECT creds.criterio, creds.creditos_aprobados, tasa.tasa_aprobacion, recaudo.recaudo, mora.cuotas_en_mora
+        FROM 
+            (
+            SELECT COUNT(*) creditos_aprobados, ee.{criterio} as criterio
+            FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+            WHERE s.estudiante_id = ee.id AND s."fechaAprobacion" IS NOT NULL
+            GROUP BY ee.{criterio}
+            ) creds, 
+            (
+            SELECT b.{criterio} as criterio, 
+                CASE WHEN a.creditos_aprobados IS NOT NULL THEN ROUND((a.creditos_aprobados/b.creditos_totales),2) 
+                ELSE 0 END AS tasa_aprobacion
+            FROM (
+                SELECT CAST (COUNT(*) as numeric(9,2))creditos_aprobados, ee.{criterio}
+                FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+                WHERE s.estudiante_id = ee.id AND s."fechaAprobacion" IS NOT NULL
+                GROUP BY ee.{criterio}
+                ) a RIGHT JOIN
+                (
+                    SELECT CAST (COUNT(*) as numeric(9,2)) creditos_totales, ee.{criterio}
+                    FROM public."ModuloFinanciero_solicitudcredito" s,public."ModuloFinanciero_estudianteestrella" ee
+                    WHERE s.estudiante_id = ee.id    
+                    GROUP BY ee.{criterio}
+                ) b
+                ON a.{criterio} = b.{criterio}
+            )tasa,
+            (
+                SELECT {criterio} as criterio, SUM("montoAPagar") as recaudo
+                FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+                WHERE "fechaAprobacion" BETWEEN TO_DATE('2022-01-01', 'YYYY-MM-DD') AND 
+                TO_DATE('2022-06-30', 'YYYY-MM-DD') AND 
+                pagado AND
+                s.estudiante_id = ee.id
+                GROUP BY ee.{criterio}
+            ) recaudo,
+            (
+            SELECT {criterio} as criterio, COUNT(*) as cuotas_en_mora
+            FROM public."ModuloFinanciero_solicitudcredito" s, public."ModuloFinanciero_estudianteestrella" ee
+            WHERE NOT pagado AND s.estudiante_id = ee.id
+            GROUP BY ee.{criterio}
+            ) mora
+        WHERE creds.criterio = tasa.criterio AND creds.criterio = recaudo.criterio AND creds.criterio = mora.criterio;
+    """
 
         cursor.execute(query)
         data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryRecaudoSemestral(criterio):
-
-    """El criterio debe ser:
-        -carrera
-        -ciudad
-        -universidad
-        -genero
-        -edad
-    """
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        query = "SELECT "+criterio+", SUM(\"montoAPagar\") "
-        query += " FROM public.\"ModuloFinanciero_solicitucredito\" s, public.\"ModuloFinanciero_estudianteestrella\" ee "
-        query += " WHERE \"fechaAprobacion\" BETWEEN TO_DATE('2002-01-01', 'YYYY-MM-DD' AND "
-        query += " TO_DATE('2022-06-06', 'YYYY-MM-DD') AND pagado AND s.estudiante_id = ee.id "
-        query += " GROUP BY ee."+criterio+";"
-
-        cursor.execute(query)
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryCuotasEnMora(criterio):
-
-    """El criterio debe ser:
-        -carrera
-        -ciudad
-        -universidad
-        -genero
-        -edad
-    """
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        query = "SELECT "+criterio +", COUNT(*) "
-        query += " FROM public.\"ModuloFinanciero_solicitudcredito\" s, public.\"ModuloFinanciero_estudianteestrella\" ee"
-        query += " WHERE NOT pagado AND s.estudiante_id = ee.id "
-        query += " GROUP BY ee."+criterio+";"
-        
-        cursor.execute(query)
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryCarrera(queries):
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data = cursor.fetchall()
-        queries["Carreras"] = data
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-            
-
-def queryUniversidad(queries):
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data = cursor.fetchall()
-        queries["Universidades"] = data
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryCiudad(queries):
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data = cursor.fetchall()
-        queries["Ciudades"] = data
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryGenero(queries):
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data = cursor.fetchall()
-        queries["Género"] = data
-        cursor.close()
-        conn.close()
-    except (Exception, pg.DatabaseError):
-        print(traceback.format_exc())
-    except (KeyboardInterrupt):
-        if conn:
-            conn.close()
-        sys.exit()
-    finally:
-        if conn:
-            conn.close()
-
-def queryEdad(queries):
-    try:
-        conn = pg.connect(
-            host = "educacion-estrella-db.cgg09hgjbyvt.us-east-1.rds.amazonaws.com",
-            database = "educacionEstrellaDB",
-            user = "eeUser",
-            password = "isis2503"
-            )
-        cursor = conn.cursor()
-        print("Connected to database")
-
-        cursor.execute("SELECT * FROM public.\"ModuloFinanciero_estudianteestrella\"")
-        data = cursor.fetchall()
-        queries["Edad"] = data
+        queries[criterio.capitalize()] = data
         cursor.close()
         conn.close()
     except (Exception, pg.DatabaseError):
@@ -291,7 +109,7 @@ def queryEdad(queries):
             conn.close()
 
 def queryToExcel(queries:dict):
-    headings = ("col1", "col2", "col3", "col4", "col5", "col6", "col7")
+    headings = ("Nombre Criterio", "Créditos Aprobados", "Tasa Aprobación", "Recaudo", "Cuotas en Mora")
     wb = Workbook()
     sheet = wb.active
     last = list(queries.keys())[-1]
@@ -302,7 +120,10 @@ def queryToExcel(queries:dict):
         # so we use "start = 1" in enumerate so
         # we don't need to add 1 to the indexes.
         for colno, heading in enumerate(headings, start = 1):
-            sheet.cell(row = 1, column = colno).value = heading
+            if heading == "Nombre Criterio":
+                sheet.cell(row = 1, column = colno).value = name
+            else:
+                sheet.cell(row = 1, column = colno).value = heading
 
         # This time we use "start = 2" to skip the heading row.
         for rowno, row in enumerate(query, start = 2):
@@ -320,7 +141,7 @@ def queryToExcel(queries:dict):
     except FileExistsError:
         pass
     wb.security = WorkbookProtection(workbookPassword="pass", revisionsPassword="pass", lockStructure=True, lockRevision=True)
-    wb.save(f"./reports/reporte.xlsx")
+    wb.save("./reports/reporte.xlsx")
 
 
 def insertEstudiantes(conn, cur):
@@ -354,6 +175,3 @@ def insertSolicitudes(conn, cur):
         conn.commit()
         cur.close()
         print("\nCarga finalizada")
-
-if __name__ == '__main__':
-    connect()
