@@ -80,4 +80,4 @@ if __name__ == "__main__":
     global p
     p = Process(target=runReports)
     p.start()
-    app.run(host="172.31.24.101:5000",debug=True, use_reloader=False)
+    app.run(host="172.31.24.101",debug=True, use_reloader=False)
