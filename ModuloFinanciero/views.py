@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from .forms import SolicitudForm
 import hashlib
 from django.views.decorators.csrf import csrf_exempt
-
+import requests
 
 @login_required
 def dashboard_view(request):
@@ -20,6 +20,8 @@ def dashboard_view(request):
             'solicitudes_list': solicitudes
         }
         return render(request, 'ModuloFinanciero/solicitudes.html', context)
+    elif role == "GerenteFinanciero":
+        return render(request, 'ModuloFinanciero/gerente.html')
     else:
         return HttpResponseForbidden()
 
@@ -34,6 +36,21 @@ def solicitud_view(request, id=0):
         return render(request, 'ModuloFinanciero/solicitud.html', context)
     else:
         return HttpResponseForbidden()
+
+@login_required
+def report_view(request):
+    role = getRole(request)
+    if role == "GerenteFinanciero":
+        #IP Microservicio
+        sendEmail = requests.get('http://localhost:5000/getReport/')
+        if sendEmail.status_code == 200:
+            context = {
+                'response': sendEmail.text
+            }
+        return render(request, 'ModuloFinanciero/reporte.html', context)
+    else:
+        return HttpResponseForbidden()
+
 
 
 @login_required

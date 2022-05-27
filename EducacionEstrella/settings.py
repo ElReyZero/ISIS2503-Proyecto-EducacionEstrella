@@ -145,7 +145,7 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOAD_BALANCER_IP = "34.207.187.150"
+LOAD_BALANCER_IP = "localhost:8000"
 
 LOGIN_URL = "/login/auth0" 
 LOGIN_REDIRECT_URL = "/"

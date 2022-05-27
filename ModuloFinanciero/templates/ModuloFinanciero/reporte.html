@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="content">
+    <div class="">
+        <div class="page-header-title">
+            <h4 class="page-title">Reporte</h4>
+            <div style="text-align:right;">
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="page-content-wrapper">
+        <div class="container">
+            <!-- Content page -->
+                    <p>
+                        {{response}}
+                    </p>
+                    <div style="text-align:center;">
+                        <button type="button" class="btn btn-primary waves-effect waves-light"
+                                onClick=" window.location.href='/' ">
+                            Back
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
